@@ -1,4 +1,4 @@
-import { LitElement, html, query } from 'lit-element';
+import { LitElement, html, query, css } from 'lit-element';
 import { Router } from '@vaadin/router';
 
 import { setupRouter } from './router';
@@ -10,14 +10,26 @@ export class App extends LitElement {
 
   async firstUpdated() {
     setupRouter(this.outlet);
-    Router.go('/home');
+    // Router.go('/home');
   }
 
   render() {
-    return html` <div id="outlet"></div> `;
+    return html`<div id="outlet"></div> `;
   }
 
   static get styles() {
-    return sharedStyles;
+    return [sharedStyles, css`
+      :host {
+        height: 100vh;
+        flex-direction: column;
+        display: flex;
+        justify-content: center;
+      }
+      
+      #outlet {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }`];
   }
 }
