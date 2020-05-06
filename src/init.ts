@@ -14,10 +14,10 @@ import { ApolloClientModule } from '@uprtcl/graphql';
 import { DiscoveryModule } from '@uprtcl/multiplatform';
 
 export const initUprtcl = async () => {
-  const c1host = 'http://localhost:3100/uprtcl/1';
+  const c1host = 'http://ec2-54-145-41-139.compute-1.amazonaws.com:3100/uprtcl/1';
   const ethHost = '';
   
-  const ipfsConfig = { host: 'ipfs.infura.io', port: 5001, protocol: 'https' };
+  const ipfsConfig = { host: 'ec2-54-145-41-139.compute-1.amazonaws.com', port: 5001, protocol: 'http' };
 
   const httpCidConfig: any = { version: 1, type: 'sha3-256', codec: 'raw', base: 'base58btc' };
   const ipfsCidConfig: any = { version: 1, type: 'sha2-256', codec: 'raw', base: 'base58btc' };
