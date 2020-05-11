@@ -15,6 +15,7 @@ import { DiscoveryModule } from '@uprtcl/multiplatform';
 
 export const initUprtcl = async () => {
   const c1host = 'http://ec2-54-145-41-139.compute-1.amazonaws.com:3100/uprtcl/1';
+  /// const c1host = 'http://localhost:3100/uprtcl/1';
   const ethHost = '';
   
   const ipfsConfig = { host: 'ec2-54-145-41-139.compute-1.amazonaws.com', port: 5001, protocol: 'http' };
