@@ -21,7 +21,7 @@ export const initUprtcl = async () => {
   const ethHost = '';
 
   const ipfsConfig = {
-    host: 'ipfs-alb-1008339112.us-east-1.elb.amazonaws.com',
+    host: 'ipfs.intercreativity.io',
     port: 443,
     protocol: 'https',
   };
