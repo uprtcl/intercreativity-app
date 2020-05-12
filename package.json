@@ -6,7 +6,8 @@
   "scripts": {
     "build": "rimraf dist && webpack",
     "start": "webpack-dev-server --mode=development",
-    "dev": "npm start"
+    "dev": "npm start",
+    "deploy": "npm run build && ./deploy.sh prd"
   },
   "dependencies": {
     "@authentic/mwc-card": "^0.9.0",
