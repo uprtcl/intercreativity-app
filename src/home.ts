@@ -18,7 +18,7 @@ export class Home extends moduleConnect(LitElement) {
     const client = this.request(ApolloClientModule.bindings.Client) as ApolloClient<any>;
 
     const wiki = {
-      title: 'Genesis Wiki',
+      title: 'doc',
       pages: []
     };
     
