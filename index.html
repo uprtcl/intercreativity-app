@@ -28,6 +28,9 @@
       <intercreativity-app></intercreativity-app>
     </module-container>
 
-    <script type="module" src="./src/index.ts"></script>
+    <!-- This breaks HTTPS support because it wasn't served as HTTPS
+          and was not included in the webpack package.
+          
+      <script type="module" src="./src/index.ts"></script> -->
   </body>
 </html>
