@@ -16,6 +16,8 @@ import { AccessControlModule } from '@uprtcl/access-control';
 import { ApolloClientModule } from '@uprtcl/graphql';
 import { DiscoveryModule } from '@uprtcl/multiplatform';
 
+export const EthereumConnectionBinding = 'ethereum-connection';
+
 export const initUprtcl = async () => {
   const c1host = 'https://api.intercreativity.io/uprtcl/1';
   const ethHost = '';
@@ -67,4 +69,7 @@ export const initUprtcl = async () => {
     documents,
     wikis,
   ]);
+
+  /** manually inject ethereum connection */
+  orchestrator.container.bind(EthereumConnectionBinding).toConstantValue(ethConnection);
 };
