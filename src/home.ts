@@ -98,7 +98,7 @@ export class Home extends moduleConnect(LitElement) {
 
     this.spaces = {};
     for (const event of events) {
-      this.spaces[event.returnValues.owner] = event.returnValues.perspectiveId;
+      this.spaces[event.returnValues.owner.toLowerCase()] = event.returnValues.perspectiveId;
     }
     this.loadingSpaces = false;
   }
