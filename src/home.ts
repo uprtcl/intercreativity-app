@@ -7,7 +7,7 @@ import { ApolloClientModule } from '@uprtcl/graphql';
 
 import '@material/mwc-button';
 import '@authentic/mwc-circular-progress';
-
+ 
 import { Router } from '@vaadin/router';
 
 import { EthereumConnection, EthereumContract } from '@uprtcl/ethereum-provider';
@@ -31,7 +31,7 @@ export class Home extends moduleConnect(LitElement) {
   creatingNewDocument: boolean = false;
 
   @property({ attribute: false })
-  infoText: string = '';
+  switchNetwork: boolean = false;
 
   @query('#snack-bar')
   snackBar!: any;
@@ -41,15 +41,21 @@ export class Home extends moduleConnect(LitElement) {
 
   eveesEthereum: EveesEthereum;
   connection: EthereumConnection;
+  
   spaces!: object;
+
   uprtclHomePerspectives: EthereumContract;
   uprtclWrapper: EthereumContract;
 
   async firstUpdated() {
     this.eveesEthereum = this.request(EveesEthereumBinding);
     this.connection = (this.eveesEthereum as any).ethConnection;
-
     await this.connection.ready();
+
+    if ([1, 3, 42].includes(this.connection.networkId)) {
+      this.switchNetwork = true;
+      return;
+    }
 
     this.uprtclHomePerspectives = new EthereumContract({
       contract: {
@@ -68,14 +74,12 @@ export class Home extends moduleConnect(LitElement) {
       this.connection);
 
     await this.uprtclHomePerspectives.ready();
-
+ 
     this.loadAllSpaces();
     this.loadHome();
   }
 
   async loadAllSpaces() {
-    await this.connection.ready();
-
     this.loadingSpaces = true;
     const events = await this.uprtclHomePerspectives.contractInstance.getPastEvents('HomePerspectiveSet', {
       fromBlock: 0
@@ -83,7 +87,10 @@ export class Home extends moduleConnect(LitElement) {
 
     this.spaces = {};
     for (const event of events) {
-      this.spaces[event.returnValues.owner.toLowerCase()] = event.returnValues.perspectiveId;
+      const address = event.returnValues.owner.toLowerCase();
+      this.spaces[address] = {
+        perspectiveId: event.returnValues.perspectiveId
+      };
     }
     this.loadingSpaces = false;
   }
@@ -157,7 +164,9 @@ export class Home extends moduleConnect(LitElement) {
         ${ addresses.map(address => {
           const space = this.spaces[address];
           return html`
-            <mwc-list-item @click=${() => this.go(space)}>${address}</mwc-list-item>
+            <mwc-list-item @click=${() => this.go(space.perspectiveId)}>
+              ${address}
+            </mwc-list-item>
           `
         })}
       </mwc-list>
@@ -165,6 +174,12 @@ export class Home extends moduleConnect(LitElement) {
   }
 
   render() {
+    if (this.switchNetwork) {
+      return html`
+        Please make sure you are connected to Rinkeby network
+      `;
+    };
+
     return html`
       <div class="button-container">
         ${this.home === undefined || this.home === '' ?

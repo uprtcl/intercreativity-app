@@ -58,17 +58,22 @@ export const initUprtcl = async () => {
   const wikis = new WikisModule();
 
   const orchestrator = new MicroOrchestrator();
-  await orchestrator.loadModules([
-    new i18nextBaseModule(),
-    new ApolloClientModule(),
-    new CortexModule(),
-    new DiscoveryModule([httpEvees.casID]),
-    new LensesModule(),
-    new AccessControlModule(),
-    evees,
-    documents,
-    wikis,
-  ]);
+
+  try {
+    await orchestrator.loadModules([
+      new i18nextBaseModule(),
+      new ApolloClientModule(),
+      new CortexModule(),
+      new DiscoveryModule([httpEvees.casID]),
+      new LensesModule(),
+      new AccessControlModule(),
+      evees,
+      documents,
+      wikis,
+    ]);
+  } catch (e) {
+    console.log('error loading modules', e);
+  }  
 
   /** manually inject ethereum connection */
   orchestrator.container.bind(EveesEthereumBinding).toConstantValue(ethEvees);
