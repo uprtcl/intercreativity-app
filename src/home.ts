@@ -1,62 +1,71 @@
-import { LitElement, html, css, property } from 'lit-element';
+import { LitElement, html, css, property, query } from 'lit-element';
 import { ApolloClient } from 'apollo-boost';
-import { Contract } from 'web3-eth-contract';
 
 import { moduleConnect, request } from '@uprtcl/micro-orchestrator';
-import { EveesModule, EveesRemote, EveesHelpers } from '@uprtcl/evees';
+import { EveesModule, EveesRemote, EveesHelpers, EveesEthereum, Secured, deriveSecured } from '@uprtcl/evees';
 import { ApolloClientModule } from '@uprtcl/graphql';
 
 import '@material/mwc-button';
+import '@material/mwc-snackbar';
+
 import { Router } from '@vaadin/router';
 
 import { EthereumConnection, EthereumContract } from '@uprtcl/ethereum-provider';
 
-import { abi, networks } from './contracts-json/UprtclHomePerspectives.min.json';
+import { abi as abiHome, networks as networksHome } from './contracts-json/UprtclHomePerspectives.min.json';
+import { abi as abiWrapper, networks as networksWrapper } from './contracts-json/UprtclWrapper.min.json';
 
-import { EthereumConnectionBinding } from './init';
-
-const getHomePerspective = async (uprtclHome, address) => {
-  const events = await uprtclHome.getPastEvents('HomePerspectiveSet', {
-    filter: { owner: address },
-    fromBlock: 0
-  });
-
-  if (events.length === 0) return '';
-
-  const last = events.sort((e1, e2) => (e1.blockNumber > e2.blockNumber) ? 1 : -1).pop();
-  
-  return last.returnValues.perspectiveId;
-}
+import { EveesEthereumBinding } from './init';
+import { NewPerspectiveData, Perspective } from '@uprtcl/evees/dist/types/types';
+import { getHomePerspective, CREATE_AND_SET_HOME } from './support';
 
 export class Home extends moduleConnect(LitElement) {
 
-  @property({ attribute: false }) 
+  @property({ attribute: false })
   loadingSpaces: boolean = true;
 
-  @property({ attribute: false }) 
+  @property({ attribute: false })
   loadingHome: boolean = true;
 
-  @property({ attribute: false }) 
-  creatingNewDocument: boolean = true;
+  @property({ attribute: false })
+  creatingNewDocument: boolean = false;
 
-  @property({ attribute: false }) 
+  @property({ attribute: false })
+  infoText: string = '';
+
+  @query('#snack-bar')
+  snackBar!: any;
+
+  @property({ attribute: false })
   home: string | undefined = undefined;
 
+  eveesEthereum: EveesEthereum;
   connection: EthereumConnection;
   spaces!: object;
   uprtclHomePerspectives: EthereumContract;
+  uprtclWrapper: EthereumContract;
 
   async firstUpdated() {
-    this.connection = this.request(EthereumConnectionBinding);
+    this.eveesEthereum = this.request(EveesEthereumBinding);
+    this.connection = (this.eveesEthereum as any).ethConnection;
+
     await this.connection.ready();
 
-    this.uprtclHomePerspectives = new EthereumContract({ 
-      contract: { 
-        abi: abi as any, 
-        networks 
-      } 
-    }, 
-    this.connection);
+    this.uprtclHomePerspectives = new EthereumContract({
+      contract: {
+        abi: abiHome as any,
+        networks: networksHome
+      }
+    },
+      this.connection);
+
+    this.uprtclWrapper = new EthereumContract({
+      contract: {
+        abi: abiWrapper as any,
+        networks: networksWrapper
+      }
+    },
+      this.connection);
 
     await this.uprtclHomePerspectives.ready();
 
@@ -64,14 +73,29 @@ export class Home extends moduleConnect(LitElement) {
     this.loadHome();
   }
 
+  updated(changedProperties) {
+    if (changedProperties.has('creatingNewDocument')) {
+      this.showInfo()
+    }
+  }
+
+  showInfo() {
+    if (this.creatingNewDocument === true) {
+      this.infoText = 'creating space';
+      this.snackBar.show();
+    } else {
+      this.snackBar.close();
+    }
+  }
+
   async loadAllSpaces() {
     await this.connection.ready();
-    
+
     this.loadingSpaces = true;
     const events = await this.uprtclHomePerspectives.contractInstance.getPastEvents('HomePerspectiveSet', {
       fromBlock: 0
     });
-  
+
     this.spaces = {};
     for (const event of events) {
       this.spaces[event.returnValues.owner] = event.returnValues.perspectiveId;
@@ -84,7 +108,7 @@ export class Home extends moduleConnect(LitElement) {
     this.home = await getHomePerspective(this.uprtclHomePerspectives.contractInstance, this.connection.getCurrentAccount());
     this.loadingHome = false;
   }
-  
+
   async newDocument() {
     this.creatingNewDocument = true;
     const eveesEthProvider = this.requestAll(EveesModule.bindings.EveesRemote).find((provider: EveesRemote) =>
@@ -97,32 +121,81 @@ export class Home extends moduleConnect(LitElement) {
       title: 'doc',
       pages: []
     };
-    
+
     const dataId = await EveesHelpers.createEntity(client, eveesEthProvider, wiki);
     const headId = await EveesHelpers.createCommit(client, eveesEthProvider, { dataId });
 
-    const randint = 0 + Math.floor((10000 - 0) * Math.random());
-    const perspectiveId = await EveesHelpers.createPerspective(client, eveesEthProvider, { 
-      headId, 
-      context: `genesis-dao-wiki-${randint}`, 
-      canWrite: eveesEthProvider.userId
-    });
+    const randint = 0 + Math.floor((1000000000 - 0) * Math.random());
 
-    console.log(perspectiveId);
+    /** create the perspectuve manually to call wrapper createAndSetHome in one tx */
+    const perspectiveData: Perspective = {
+      creatorId: this.connection.getCurrentAccount(),
+      authority: eveesEthProvider.authority,
+      timestamp: Date.now()
+    };
 
-    await this.uprtclHomePerspectives.send('setHomePerspectivePublic(string)', [ perspectiveId ]);
-    this.creatingNewDocument = true;
+    const perspective: Secured<Perspective> = await deriveSecured(
+      perspectiveData,
+      eveesEthProvider.cidConfig
+    );
 
+    const newPerspective: NewPerspectiveData = {
+      perspective,
+        details: { headId, name: '', context: randint.toString() },
+        canWrite: this.connection.getCurrentAccount()
+    }
+
+    const ethPerspectives = await this.eveesEthereum.preparePerspectives([newPerspective]);
+
+    await this.uprtclWrapper.ready();    
+    await this.uprtclWrapper.send(
+      CREATE_AND_SET_HOME,
+      [ ethPerspectives[0],
+      this.connection.getCurrentAccount() ]
+    );
+
+    const perspectiveId = perspective.id;
+    this.go(perspectiveId);
+  }
+
+  go(perspectiveId: string) {
     Router.go(`/doc/${perspectiveId}`);
+  }
+
+  renderSpaces() {
+    if (this.spaces === undefined) return '';
+
+    const addresses = Object.keys(this.spaces).filter(address => address !== this.connection.getCurrentAccount());
+
+    return html`
+      <mwc-list>
+        ${ addresses.map(address => {
+          const space = this.spaces[address];
+          return html`
+            <mwc-list-item @click=${() => this.go(space)}>${address}</mwc-list-item>
+          `
+        })}
+      </mwc-list>
+    `;
   }
 
   render() {
     return html`
-      <div>
-        <mwc-button @click=${this.newDocument} raised>crete your space</mwc-button>
-        <div>${this.home}</div>
-        <div>${this.spaces ? Object.keys(this.spaces).map(space => this.spaces[space]) : ''}</div>
+      <div class="button-container">
+        ${this.home === undefined || this.home === '' ?
+        html`<mwc-button @click=${this.newDocument} raised>crete your space</mwc-button>` :
+        html`<mwc-button @click=${() => this.go(this.home)} raised>go to your space</mwc-button>`
+      }
       </div>
+      
+      <div class="section-title">Recent Spaces</div>
+      <div class="spaces-container">
+        ${this.renderSpaces()}
+      </div>
+
+      <mwc-snackbar id="snack-bar" timeoutMs="-1"
+        labelText=${this.infoText}>
+      </mwc-snackbar>
     `;
   }
 
@@ -133,6 +206,27 @@ export class Home extends moduleConnect(LitElement) {
       flex-direction: column;
       justify-content: center;
       text-align: center;
+      padding: 0px 10px;
     }
+
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 9px;
+      color: gray;
+    }
+
+    .button-container {
+      margin-bottom: 35px;
+    }
+
+    .spaces-container {
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
+      margin-bottom: 36px;
+      border-radius: 4px;
+      background-color: rgb(255,255,255,0.6);
+    }
+
   `;
 }
