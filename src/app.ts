@@ -24,6 +24,7 @@ export class App extends LitElement {
         flex-direction: column;
         display: flex;
         justify-content: center;
+        --mdc-theme-primary: #2196f3;
       }
       
       #outlet {

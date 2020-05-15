@@ -6,7 +6,7 @@ import { EveesModule, EveesRemote, EveesHelpers, EveesEthereum, Secured, deriveS
 import { ApolloClientModule } from '@uprtcl/graphql';
 
 import '@material/mwc-button';
-import '@material/mwc-snackbar';
+import '@authentic/mwc-circular-progress';
 
 import { Router } from '@vaadin/router';
 
@@ -71,21 +71,6 @@ export class Home extends moduleConnect(LitElement) {
 
     this.loadAllSpaces();
     this.loadHome();
-  }
-
-  updated(changedProperties) {
-    if (changedProperties.has('creatingNewDocument')) {
-      this.showInfo()
-    }
-  }
-
-  showInfo() {
-    if (this.creatingNewDocument === true) {
-      this.infoText = 'creating space';
-      this.snackBar.show();
-    } else {
-      this.snackBar.close();
-    }
   }
 
   async loadAllSpaces() {
@@ -183,8 +168,18 @@ export class Home extends moduleConnect(LitElement) {
     return html`
       <div class="button-container">
         ${this.home === undefined || this.home === '' ?
-        html`<mwc-button @click=${this.newDocument} raised>crete your space</mwc-button>` :
-        html`<mwc-button @click=${() => this.go(this.home)} raised>go to your space</mwc-button>`
+        html`
+          <mwc-button 
+            @click=${this.newDocument}
+            raised> 
+            ${this.creatingNewDocument ? 
+              html`<mwc-circular-progress SIZE="20"></mwc-circular-progress>` : 
+              'crete your space'}
+          </mwc-button>` :        
+        html`
+          <mwc-button @click=${() => this.go(this.home)} raised>
+            go to your space
+          </mwc-button>`
       }
       </div>
       
@@ -193,8 +188,9 @@ export class Home extends moduleConnect(LitElement) {
         ${this.renderSpaces()}
       </div>
 
-      <mwc-snackbar id="snack-bar" timeoutMs="-1"
-        labelText=${this.infoText}>
+      <mwc-snackbar 
+        id="snack-bar" 
+        labelText="creating space">
       </mwc-snackbar>
     `;
   }
@@ -207,6 +203,10 @@ export class Home extends moduleConnect(LitElement) {
       justify-content: center;
       text-align: center;
       padding: 0px 10px;
+    }
+
+    mwc-button {
+      width: 220px;
     }
 
     .section-title {
