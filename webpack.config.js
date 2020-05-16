@@ -19,6 +19,12 @@ module.exports = {
       '@authentic/mwc-notched-outline': path.resolve(
         './node_modules/@authentic/mwc-notched-outline'
       ),
+      '@authentic/mwc-card': path.resolve(
+        './node_modules/@authentic/mwc-card'
+      ),
+      '@authentic/mwc-tooltip': path.resolve(
+        './node_modules/@authentic/mwc-tooltip'
+      ),
       '@material/mwc-list': path.resolve('./node_modules/@material/mwc-list'),
       '@material/mwc-notched-outline': path.resolve(
         './node_modules/@material/mwc-notched-outline'
