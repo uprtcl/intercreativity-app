@@ -20,10 +20,16 @@ export class Doc extends moduleConnect(LitElement) {
 
     await eveesHttpProvider.connect();
     this.defaultAuthority = eveesHttpProvider.authority;
+    console.log(1);
   }
   
   render() {
-    return html`<wiki-drawer ref=${this.docId} default-authority=${this.defaultAuthority}></wiki-drawer>`;
+    return html`
+      <wiki-drawer 
+        ref=${this.docId} 
+        default-authority=${this.defaultAuthority}
+        .editableAuthorities=${[this.defaultAuthority]}>
+      </wiki-drawer>`;
   }
 
   static styles = css`
