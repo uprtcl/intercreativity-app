@@ -41,6 +41,8 @@ export const initUprtcl = async () => {
     base: 'base58btc',
   };
 
+  const orchestrator = new MicroOrchestrator();
+
   const httpConnection = new HttpConnection();
   const ethConnection = new EthereumConnection({ provider: ethHost });
 
@@ -50,14 +52,12 @@ export const initUprtcl = async () => {
     ethConnection,
     httpCidConfig
   );
-  const ethEvees = new EveesEthereum(ethConnection, ipfsConfig, ipfsCidConfig);
+  const ethEvees = new EveesEthereum(ethConnection, ipfsConfig, ipfsCidConfig, orchestrator.container);
 
   const evees = new EveesModule([ethEvees, httpEvees], httpEvees);
 
   const documents = new DocumentsModule();
   const wikis = new WikisModule();
-
-  const orchestrator = new MicroOrchestrator();
 
   try {
     await orchestrator.loadModules([

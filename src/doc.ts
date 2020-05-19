@@ -20,7 +20,6 @@ export class Doc extends moduleConnect(LitElement) {
 
     await eveesHttpProvider.connect();
     this.defaultAuthority = eveesHttpProvider.authority;
-    console.log(1);
   }
   
   render() {
