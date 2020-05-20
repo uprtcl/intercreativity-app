@@ -1,10 +1,9 @@
-import {LitElement, html, css, property} from 'lit-element';
-import { moduleConnect } from '@uprtcl/micro-orchestrator';
-import { EveesModule, EveesRemote } from '@uprtcl/evees';
-import { HttpEthAuthProvider } from '@uprtcl/http-provider';
+import { LitElement, html, css, property } from "lit-element";
+import { moduleConnect } from "@uprtcl/micro-orchestrator";
+import { EveesModule, EveesRemote } from "@uprtcl/evees";
+import { HttpEthAuthProvider } from "@uprtcl/http-provider";
 
 export class Doc extends moduleConnect(LitElement) {
-
   @property({ attribute: false })
   docId!: string;
 
@@ -12,23 +11,26 @@ export class Doc extends moduleConnect(LitElement) {
   defaultAuthority!: string;
 
   async firstUpdated() {
-    this.docId = window.location.pathname.split('/')[2];
+    this.docId = window.location.pathname.split("/")[2];
 
-    const eveesHttpProvider = this.requestAll(EveesModule.bindings.EveesRemote).find((provider: EveesRemote) =>
-      provider.authority.startsWith('http')
+    const eveesHttpProvider = this.requestAll(
+      EveesModule.bindings.EveesRemote
+    ).find((provider: EveesRemote) =>
+      provider.authority.startsWith("http")
     ) as HttpEthAuthProvider;
 
     await eveesHttpProvider.connect();
     this.defaultAuthority = eveesHttpProvider.authority;
   }
-  
+
   render() {
     return html`
-      <wiki-drawer 
-        ref=${this.docId} 
+      <wiki-drawer
+        ref=${this.docId}
         default-authority=${this.defaultAuthority}
-        .editableAuthorities=${[this.defaultAuthority]}>
-      </wiki-drawer>`;
+        .editableAuthorities=${[this.defaultAuthority]}
+      ></wiki-drawer>
+    `;
   }
 
   static styles = css`
@@ -36,6 +38,10 @@ export class Doc extends moduleConnect(LitElement) {
       flex-grow: 1;
       display: flex;
       flex-direction: column;
+    }
+
+    wiki-drawer {
+      flex-grow: 1;
     }
   `;
 }

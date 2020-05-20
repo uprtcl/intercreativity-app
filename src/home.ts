@@ -1,26 +1,44 @@
-import { LitElement, html, css, property, query } from 'lit-element';
-import { ApolloClient } from 'apollo-boost';
+import { LitElement, html, css, property, query } from "lit-element";
+import { ApolloClient } from "apollo-boost";
 
-import { moduleConnect, request } from '@uprtcl/micro-orchestrator';
-import { EveesModule, EveesRemote, EveesHelpers, EveesEthereum, Secured, deriveSecured } from '@uprtcl/evees';
-import { ApolloClientModule } from '@uprtcl/graphql';
+import { moduleConnect, request } from "@uprtcl/micro-orchestrator";
+import {
+  EveesModule,
+  EveesRemote,
+  EveesHelpers,
+  EveesEthereum,
+  Secured,
+  deriveSecured,
+} from "@uprtcl/evees";
+import { ApolloClientModule } from "@uprtcl/graphql";
 
-import '@material/mwc-button';
-import '@authentic/mwc-circular-progress';
- 
-import { Router } from '@vaadin/router';
+import "@material/mwc-button";
+import "@authentic/mwc-circular-progress";
 
-import { EthereumConnection, EthereumContract } from '@uprtcl/ethereum-provider';
+import { Router } from "@vaadin/router";
 
-import { abi as abiHome, networks as networksHome } from './contracts-json/UprtclHomePerspectives.min.json';
-import { abi as abiWrapper, networks as networksWrapper } from './contracts-json/UprtclWrapper.min.json';
+import {
+  EthereumConnection,
+  EthereumContract,
+} from "@uprtcl/ethereum-provider";
 
-import { EveesEthereumBinding } from './init';
-import { NewPerspectiveData, Perspective } from '@uprtcl/evees/dist/types/types';
-import { getHomePerspective, CREATE_AND_SET_HOME } from './support';
+import {
+  abi as abiHome,
+  networks as networksHome,
+} from "./contracts-json/UprtclHomePerspectives.min.json";
+import {
+  abi as abiWrapper,
+  networks as networksWrapper,
+} from "./contracts-json/UprtclWrapper.min.json";
+
+import { EveesEthereumBinding } from "./init";
+import {
+  NewPerspectiveData,
+  Perspective,
+} from "@uprtcl/evees/dist/types/types";
+import { getHomePerspective, CREATE_AND_SET_HOME } from "./support";
 
 export class Home extends moduleConnect(LitElement) {
-
   @property({ attribute: false })
   loadingSpaces: boolean = true;
 
@@ -33,7 +51,7 @@ export class Home extends moduleConnect(LitElement) {
   @property({ attribute: false })
   switchNetwork: boolean = false;
 
-  @query('#snack-bar')
+  @query("#snack-bar")
   snackBar!: any;
 
   @property({ attribute: false })
@@ -41,7 +59,7 @@ export class Home extends moduleConnect(LitElement) {
 
   eveesEthereum: EveesEthereum;
   connection: EthereumConnection;
-  
+
   spaces!: object;
 
   uprtclHomePerspectives: EthereumContract;
@@ -57,39 +75,46 @@ export class Home extends moduleConnect(LitElement) {
       return;
     }
 
-    this.uprtclHomePerspectives = new EthereumContract({
-      contract: {
-        abi: abiHome as any,
-        networks: networksHome
-      }
-    },
-      this.connection);
+    this.uprtclHomePerspectives = new EthereumContract(
+      {
+        contract: {
+          abi: abiHome as any,
+          networks: networksHome,
+        },
+      },
+      this.connection
+    );
 
-    this.uprtclWrapper = new EthereumContract({
-      contract: {
-        abi: abiWrapper as any,
-        networks: networksWrapper
-      }
-    },
-      this.connection);
+    this.uprtclWrapper = new EthereumContract(
+      {
+        contract: {
+          abi: abiWrapper as any,
+          networks: networksWrapper,
+        },
+      },
+      this.connection
+    );
 
     await this.uprtclHomePerspectives.ready();
- 
+
     this.loadAllSpaces();
     this.loadHome();
   }
 
   async loadAllSpaces() {
     this.loadingSpaces = true;
-    const events = await this.uprtclHomePerspectives.contractInstance.getPastEvents('HomePerspectiveSet', {
-      fromBlock: 0
-    });
+    const events = await this.uprtclHomePerspectives.contractInstance.getPastEvents(
+      "HomePerspectiveSet",
+      {
+        fromBlock: 0,
+      }
+    );
 
     this.spaces = {};
     for (const event of events) {
       const address = event.returnValues.owner.toLowerCase();
       this.spaces[address] = {
-        perspectiveId: event.returnValues.perspectiveId
+        perspectiveId: event.returnValues.perspectiveId,
       };
     }
     this.loadingSpaces = false;
@@ -97,25 +122,38 @@ export class Home extends moduleConnect(LitElement) {
 
   async loadHome() {
     this.loadingHome = true;
-    this.home = await getHomePerspective(this.uprtclHomePerspectives.contractInstance, this.connection.getCurrentAccount());
+    this.home = await getHomePerspective(
+      this.uprtclHomePerspectives.contractInstance,
+      this.connection.getCurrentAccount()
+    );
     this.loadingHome = false;
   }
 
   async newDocument() {
     this.creatingNewDocument = true;
-    const eveesEthProvider = this.requestAll(EveesModule.bindings.EveesRemote).find((provider: EveesRemote) =>
-      provider.authority.startsWith('eth')
+    const eveesEthProvider = this.requestAll(
+      EveesModule.bindings.EveesRemote
+    ).find((provider: EveesRemote) =>
+      provider.authority.startsWith("eth")
     ) as EveesRemote;
 
-    const client = this.request(ApolloClientModule.bindings.Client) as ApolloClient<any>;
+    const client = this.request(
+      ApolloClientModule.bindings.Client
+    ) as ApolloClient<any>;
 
     const wiki = {
-      title: 'doc',
-      pages: []
+      title: "doc",
+      pages: [],
     };
 
-    const dataId = await EveesHelpers.createEntity(client, eveesEthProvider, wiki);
-    const headId = await EveesHelpers.createCommit(client, eveesEthProvider, { dataId });
+    const dataId = await EveesHelpers.createEntity(
+      client,
+      eveesEthProvider,
+      wiki
+    );
+    const headId = await EveesHelpers.createCommit(client, eveesEthProvider, {
+      dataId,
+    });
 
     const randint = 0 + Math.floor((1000000000 - 0) * Math.random());
 
@@ -123,7 +161,7 @@ export class Home extends moduleConnect(LitElement) {
     const perspectiveData: Perspective = {
       creatorId: this.connection.getCurrentAccount(),
       authority: eveesEthProvider.authority,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     const perspective: Secured<Perspective> = await deriveSecured(
@@ -133,18 +171,19 @@ export class Home extends moduleConnect(LitElement) {
 
     const newPerspective: NewPerspectiveData = {
       perspective,
-        details: { headId, name: '', context: randint.toString() },
-        canWrite: this.connection.getCurrentAccount()
-    }
+      details: { headId, name: "", context: randint.toString() },
+      canWrite: this.connection.getCurrentAccount(),
+    };
 
-    const ethPerspectives = await this.eveesEthereum.preparePerspectives([newPerspective]);
+    const ethPerspectives = await this.eveesEthereum.preparePerspectives([
+      newPerspective,
+    ]);
 
-    await this.uprtclWrapper.ready();    
-    await this.uprtclWrapper.send(
-      CREATE_AND_SET_HOME,
-      [ ethPerspectives[0],
-      this.connection.getCurrentAccount() ]
-    );
+    await this.uprtclWrapper.ready();
+    await this.uprtclWrapper.send(CREATE_AND_SET_HOME, [
+      ethPerspectives[0],
+      this.connection.getCurrentAccount(),
+    ]);
 
     const perspectiveId = perspective.id;
     this.go(perspectiveId);
@@ -155,19 +194,21 @@ export class Home extends moduleConnect(LitElement) {
   }
 
   renderSpaces() {
-    if (this.spaces === undefined) return '';
+    if (this.spaces === undefined) return "";
 
-    const addresses = Object.keys(this.spaces).filter(address => address !== this.connection.getCurrentAccount());
+    const addresses = Object.keys(this.spaces).filter(
+      (address) => address !== this.connection.getCurrentAccount()
+    );
 
     return html`
       <mwc-list>
-        ${ addresses.map(address => {
+        ${addresses.map((address) => {
           const space = this.spaces[address];
           return html`
             <mwc-list-item @click=${() => this.go(space.perspectiveId)}>
               ${address}
             </mwc-list-item>
-          `
+          `;
         })}
       </mwc-list>
     `;
@@ -175,38 +216,34 @@ export class Home extends moduleConnect(LitElement) {
 
   render() {
     if (this.switchNetwork) {
-      return html`
-        Please make sure you are connected to Rinkeby network
-      `;
-    };
+      return html` Please make sure you are connected to Rinkeby network `;
+    }
 
     return html`
       <div class="button-container">
-        ${this.home === undefined || this.home === '' ?
-        html`
-          <mwc-button 
-            @click=${this.newDocument}
-            raised> 
-            ${this.creatingNewDocument ? 
-              html`<mwc-circular-progress SIZE="20"></mwc-circular-progress>` : 
-              'crete your space'}
-          </mwc-button>` :        
-        html`
-          <mwc-button @click=${() => this.go(this.home)} raised>
-            go to your space
-          </mwc-button>`
-      }
+        ${this.home === undefined || this.home === ""
+          ? html`
+              <mwc-button @click=${this.newDocument} raised>
+                ${this.creatingNewDocument
+                  ? html`
+                      <mwc-circular-progress SIZE="20"></mwc-circular-progress>
+                    `
+                  : "create your space"}
+              </mwc-button>
+            `
+          : html`
+              <mwc-button @click=${() => this.go(this.home)} raised>
+                go to your space
+              </mwc-button>
+            `}
       </div>
-      
+
       <div class="section-title">Recent Spaces</div>
       <div class="spaces-container">
         ${this.renderSpaces()}
       </div>
 
-      <mwc-snackbar 
-        id="snack-bar" 
-        labelText="creating space">
-      </mwc-snackbar>
+      <mwc-snackbar id="snack-bar" labelText="creating space"></mwc-snackbar>
     `;
   }
 
@@ -240,8 +277,7 @@ export class Home extends moduleConnect(LitElement) {
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
       margin-bottom: 36px;
       border-radius: 4px;
-      background-color: rgb(255,255,255,0.6);
+      background-color: rgb(255, 255, 255, 0.6);
     }
-
   `;
 }
