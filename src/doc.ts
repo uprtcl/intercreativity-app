@@ -3,6 +3,8 @@ import { moduleConnect } from '@uprtcl/micro-orchestrator';
 import { EveesModule, EveesRemote } from '@uprtcl/evees';
 import { HttpEthAuthProvider } from '@uprtcl/http-provider';
 
+import { Router } from '@vaadin/router';
+
 export class Doc extends moduleConnect(LitElement) {
   @property({ attribute: false })
   docId!: string;
@@ -23,9 +25,14 @@ export class Doc extends moduleConnect(LitElement) {
     this.defaultAuthority = eveesHttpProvider.authority;
   }
 
+  goHome() {
+    Router.go(`/home`);
+  }
+
   render() {
     return html`
       <wiki-drawer
+        @back=${() => this.goHome()}
         ref=${this.docId}
         default-authority=${this.defaultAuthority}
         .editableAuthorities=${[this.defaultAuthority]}

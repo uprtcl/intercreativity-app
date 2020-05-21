@@ -112,14 +112,10 @@ export class Home extends moduleConnect(LitElement) {
     );
 
     this.spaces = {};
-    debugger;
     for (const event of events) {
       const address = event.returnValues.owner.toLowerCase();
-      const profile = await Box.getProfile(address);
-      console.log('profile', profile);
       this.spaces[address] = {
         perspectiveId: event.returnValues.perspectiveId,
-        profile: profile,
       };
     }
     this.loadingSpaces = false;
@@ -211,7 +207,7 @@ export class Home extends moduleConnect(LitElement) {
           const space = this.spaces[address];
           return html`
             <mwc-list-item @click=${() => this.go(space.perspectiveId)}>
-              ${address}
+              <evees-author user-id=${address}></evees-author>
             </mwc-list-item>
           `;
         })}
