@@ -1,7 +1,9 @@
-import { LitElement, html, css, property } from "lit-element";
-import { moduleConnect } from "@uprtcl/micro-orchestrator";
-import { EveesModule, EveesRemote } from "@uprtcl/evees";
-import { HttpEthAuthProvider } from "@uprtcl/http-provider";
+import { LitElement, html, css, property } from 'lit-element';
+import { moduleConnect } from '@uprtcl/micro-orchestrator';
+import { EveesModule, EveesRemote } from '@uprtcl/evees';
+import { HttpEthAuthProvider } from '@uprtcl/http-provider';
+
+import { Router } from '@vaadin/router';
 
 export class Doc extends moduleConnect(LitElement) {
   @property({ attribute: false })
@@ -11,21 +13,26 @@ export class Doc extends moduleConnect(LitElement) {
   defaultAuthority!: string;
 
   async firstUpdated() {
-    this.docId = window.location.pathname.split("/")[2];
+    this.docId = window.location.pathname.split('/')[2];
 
     const eveesHttpProvider = this.requestAll(
       EveesModule.bindings.EveesRemote
     ).find((provider: EveesRemote) =>
-      provider.authority.startsWith("http")
+      provider.authority.startsWith('http')
     ) as HttpEthAuthProvider;
 
     await eveesHttpProvider.connect();
     this.defaultAuthority = eveesHttpProvider.authority;
   }
 
+  goHome() {
+    Router.go(`/home`);
+  }
+
   render() {
     return html`
       <wiki-drawer
+        @back=${() => this.goHome()}
         ref=${this.docId}
         default-authority=${this.defaultAuthority}
         .editableAuthorities=${[this.defaultAuthority]}

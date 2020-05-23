@@ -1,11 +1,11 @@
-import { LitElement, html, query, css } from "lit-element";
-import { Router } from "@vaadin/router";
+import { LitElement, html, query, css } from 'lit-element';
+import { Router } from '@vaadin/router';
 
-import { setupRouter } from "./router";
-import { sharedStyles } from "./styles";
+import { setupRouter } from './router';
+import { sharedStyles } from './styles';
 
 export class App extends LitElement {
-  @query("#outlet")
+  @query('#outlet')
   outlet: HTMLElement;
 
   async firstUpdated() {

@@ -1,7 +1,8 @@
-import { LitElement, html, css, property, query } from "lit-element";
-import { ApolloClient } from "apollo-boost";
+import { LitElement, html, css, property, query } from 'lit-element';
+import { ApolloClient } from 'apollo-boost';
+import { Box } from '3box';
 
-import { moduleConnect, request } from "@uprtcl/micro-orchestrator";
+import { moduleConnect, request } from '@uprtcl/micro-orchestrator';
 import {
   EveesModule,
   EveesRemote,
@@ -9,34 +10,34 @@ import {
   EveesEthereum,
   Secured,
   deriveSecured,
-} from "@uprtcl/evees";
-import { ApolloClientModule } from "@uprtcl/graphql";
+} from '@uprtcl/evees';
+import { ApolloClientModule } from '@uprtcl/graphql';
 
-import "@material/mwc-button";
-import "@authentic/mwc-circular-progress";
+import '@material/mwc-button';
+import '@authentic/mwc-circular-progress';
 
-import { Router } from "@vaadin/router";
+import { Router } from '@vaadin/router';
 
 import {
   EthereumConnection,
   EthereumContract,
-} from "@uprtcl/ethereum-provider";
+} from '@uprtcl/ethereum-provider';
 
 import {
   abi as abiHome,
   networks as networksHome,
-} from "./contracts-json/UprtclHomePerspectives.min.json";
+} from './contracts-json/UprtclHomePerspectives.min.json';
 import {
   abi as abiWrapper,
   networks as networksWrapper,
-} from "./contracts-json/UprtclWrapper.min.json";
+} from './contracts-json/UprtclWrapper.min.json';
 
-import { EveesEthereumBinding } from "./init";
+import { EveesEthereumBinding } from './init';
 import {
   NewPerspectiveData,
   Perspective,
-} from "@uprtcl/evees/dist/types/types";
-import { getHomePerspective, CREATE_AND_SET_HOME } from "./support";
+} from '@uprtcl/evees/dist/types/types';
+import { getHomePerspective, CREATE_AND_SET_HOME } from './support';
 
 export class Home extends moduleConnect(LitElement) {
   @property({ attribute: false })
@@ -51,7 +52,7 @@ export class Home extends moduleConnect(LitElement) {
   @property({ attribute: false })
   switchNetwork: boolean = false;
 
-  @query("#snack-bar")
+  @query('#snack-bar')
   snackBar!: any;
 
   @property({ attribute: false })
@@ -104,7 +105,7 @@ export class Home extends moduleConnect(LitElement) {
   async loadAllSpaces() {
     this.loadingSpaces = true;
     const events = await this.uprtclHomePerspectives.contractInstance.getPastEvents(
-      "HomePerspectiveSet",
+      'HomePerspectiveSet',
       {
         fromBlock: 0,
       }
@@ -134,7 +135,7 @@ export class Home extends moduleConnect(LitElement) {
     const eveesEthProvider = this.requestAll(
       EveesModule.bindings.EveesRemote
     ).find((provider: EveesRemote) =>
-      provider.authority.startsWith("eth")
+      provider.authority.startsWith('eth')
     ) as EveesRemote;
 
     const client = this.request(
@@ -142,7 +143,7 @@ export class Home extends moduleConnect(LitElement) {
     ) as ApolloClient<any>;
 
     const wiki = {
-      title: "doc",
+      title: 'doc',
       pages: [],
     };
 
@@ -171,7 +172,7 @@ export class Home extends moduleConnect(LitElement) {
 
     const newPerspective: NewPerspectiveData = {
       perspective,
-      details: { headId, name: "", context: randint.toString() },
+      details: { headId, name: '', context: randint.toString() },
       canWrite: this.connection.getCurrentAccount(),
     };
 
@@ -194,7 +195,7 @@ export class Home extends moduleConnect(LitElement) {
   }
 
   renderSpaces() {
-    if (this.spaces === undefined) return "";
+    if (this.spaces === undefined) return '';
 
     const addresses = Object.keys(this.spaces).filter(
       (address) => address !== this.connection.getCurrentAccount()
@@ -206,7 +207,7 @@ export class Home extends moduleConnect(LitElement) {
           const space = this.spaces[address];
           return html`
             <mwc-list-item @click=${() => this.go(space.perspectiveId)}>
-              ${address}
+              <evees-author user-id=${address}></evees-author>
             </mwc-list-item>
           `;
         })}
@@ -221,14 +222,14 @@ export class Home extends moduleConnect(LitElement) {
 
     return html`
       <div class="button-container">
-        ${this.home === undefined || this.home === ""
+        ${this.home === undefined || this.home === ''
           ? html`
               <mwc-button @click=${this.newDocument} raised>
                 ${this.creatingNewDocument
                   ? html`
                       <mwc-circular-progress SIZE="20"></mwc-circular-progress>
                     `
-                  : "create your space"}
+                  : 'create your space'}
               </mwc-button>
             `
           : html`
