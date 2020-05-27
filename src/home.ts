@@ -13,6 +13,7 @@ import {
 import { ApolloClientModule } from '@uprtcl/graphql';
 
 import '@material/mwc-button';
+import { TextFieldBase } from '@material/mwc-textfield/mwc-textfield-base';
 import '@authentic/mwc-circular-progress';
 
 import { Router } from '@vaadin/router';
@@ -56,6 +57,9 @@ export class Home extends moduleConnect(LitElement) {
 
   @property({ attribute: false })
   home: string | undefined = undefined;
+
+  @property({ attribute: false })
+  showNewSpaceForm: boolean = false;
 
   eveesEthereum: EveesEthereum;
   connection: EthereumConnection;
@@ -129,7 +133,7 @@ export class Home extends moduleConnect(LitElement) {
     this.loadingHome = false;
   }
 
-  async newDocument() {
+  async newDocument(title: string) {
     this.creatingNewDocument = true;
     const eveesEthProvider = this.requestAll(
       EveesModule.bindings.EveesRemote
@@ -142,7 +146,7 @@ export class Home extends moduleConnect(LitElement) {
     ) as ApolloClient<any>;
 
     const wiki = {
-      title: 'doc',
+      title: title,
       pages: [],
     };
 
@@ -220,23 +224,28 @@ export class Home extends moduleConnect(LitElement) {
     }
 
     return html`
-      <div class="button-container">
-        ${this.home === undefined || this.home === ''
-          ? html`
-              <mwc-button @click=${this.newDocument} raised>
-                ${this.creatingNewDocument
-                  ? html`
-                      <mwc-circular-progress SIZE="20"></mwc-circular-progress>
-                    `
-                  : 'create your space'}
-              </mwc-button>
-            `
-          : html`
-              <mwc-button @click=${() => this.go(this.home)} raised>
-                go to your space
-              </mwc-button>
-            `}
-      </div>
+      ${!this.showNewSpaceForm
+        ? html`<div class="button-container">
+            ${this.home === undefined || this.home === ''
+              ? html` <mwc-button
+                  @click=${() => (this.showNewSpaceForm = true)}
+                  raised
+                >
+                  create your space
+                </mwc-button>`
+              : html`
+                  <mwc-button @click=${() => this.go(this.home)} raised>
+                    go to your space
+                  </mwc-button>
+                `}
+          </div>`
+        : html`<evees-string-form
+            value=""
+            label="title (optional)"
+            ?loading=${this.creatingNewDocument}
+            @cancel=${() => (this.showNewSpaceForm = false)}
+            @accept=${(e) => this.newDocument(e.detail.value)}
+          ></evees-string-form>`}
 
       <div class="section-title">Recent Spaces</div>
       <div class="spaces-container">
@@ -257,25 +266,27 @@ export class Home extends moduleConnect(LitElement) {
       padding: 0px 10px;
     }
 
+    evees-string-form {
+      width: fit-content;
+      margin: 0 auto;
+    }
+
     mwc-button {
       width: 220px;
     }
 
     .section-title {
+      margin-top: 36px;
       font-weight: bold;
       margin-bottom: 9px;
       color: gray;
     }
 
-    .button-container {
-      margin-bottom: 35px;
-    }
-
     .spaces-container {
+      margin-bottom: 36px;
       max-width: 400px;
       margin: 0 auto;
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
-      margin-bottom: 36px;
       border-radius: 4px;
       background-color: rgb(255, 255, 255, 0.6);
     }

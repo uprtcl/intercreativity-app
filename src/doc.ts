@@ -30,6 +30,7 @@ export class Doc extends moduleConnect(LitElement) {
   }
 
   render() {
+    if (this.docId === undefined) return '';
     return html`
       <wiki-drawer
         @back=${() => this.goHome()}
