@@ -1,6 +1,5 @@
 import { LitElement, html, css, property, query } from 'lit-element';
 import { ApolloClient } from 'apollo-boost';
-import { Box } from '3box';
 
 import { moduleConnect, request } from '@uprtcl/micro-orchestrator';
 import {
