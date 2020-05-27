@@ -13,6 +13,7 @@ import {
 import { ApolloClientModule } from '@uprtcl/graphql';
 
 import '@material/mwc-button';
+import { TextFieldBase } from '@material/mwc-textfield/mwc-textfield-base';
 import '@authentic/mwc-circular-progress';
 
 import { Router } from '@vaadin/router';
@@ -56,6 +57,12 @@ export class Home extends moduleConnect(LitElement) {
 
   @property({ attribute: false })
   home: string | undefined = undefined;
+
+  @property({ attribute: false })
+  showNewSpaceForm: boolean = false;
+
+  @query('#new-title')
+  newTitleEl!: TextFieldBase;
 
   eveesEthereum: EveesEthereum;
   connection: EthereumConnection;
@@ -127,6 +134,17 @@ export class Home extends moduleConnect(LitElement) {
       this.connection.getCurrentAccount()
     );
     this.loadingHome = false;
+  }
+
+  async newSpaceClick() {
+    if (this.showNewSpaceForm) {
+      this.newDocument();
+    }
+
+    this.showNewSpaceForm = true;
+    await this.updateComplete;
+
+    this.newTitleEl.focus();
   }
 
   async newDocument() {
@@ -214,29 +232,44 @@ export class Home extends moduleConnect(LitElement) {
     `;
   }
 
+  renderNewSpaceForm() {
+    return html`
+      <div class="new-space-form">
+        <div class="row">
+          <mwc-textfield outlined id="new-title" value="" label="Title">
+          </mwc-textfield>
+        </div>
+      </div>
+    `;
+  }
+
   render() {
     if (this.switchNetwork) {
       return html` Please make sure you are connected to Rinkeby network `;
     }
 
     return html`
-      <div class="button-container">
-        ${this.home === undefined || this.home === ''
-          ? html`
-              <mwc-button @click=${this.newDocument} raised>
-                ${this.creatingNewDocument
-                  ? html`
-                      <mwc-circular-progress SIZE="20"></mwc-circular-progress>
-                    `
-                  : 'create your space'}
-              </mwc-button>
-            `
-          : html`
-              <mwc-button @click=${() => this.go(this.home)} raised>
-                go to your space
-              </mwc-button>
-            `}
-      </div>
+      ${!this.showNewSpaceForm
+        ? html`<div class="button-container">
+            ${this.home === undefined || this.home === ''
+              ? html`
+                  <mwc-button @click=${this.newSpaceClick} raised>
+                    ${this.creatingNewDocument
+                      ? html`
+                          <mwc-circular-progress
+                            SIZE="20"
+                          ></mwc-circular-progress>
+                        `
+                      : 'create your space'}
+                  </mwc-button>
+                `
+              : html`
+                  <mwc-button @click=${() => this.go(this.home)} raised>
+                    go to your space
+                  </mwc-button>
+                `}
+          </div>`
+        : this.renderNewSpaceForm()}
 
       <div class="section-title">Recent Spaces</div>
       <div class="spaces-container">
