@@ -18,6 +18,10 @@ Then you need a browser with [Metamask](https://chrome.google.com/webstore/detai
 0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c
 ```
 
+## (Optionally) Run the NodeJS API
+
+If there are issues connecting with `https://api.intercreativity.io`, you can clone [js-uprtcl-server](https://github.com/uprtcl/js-uprtcl-server/tree/develop) and install it. Make sure you follow the readme there to install and run the database.
+
 ## Run the app
 
 Then go to the `develop` branch of this repo and run
@@ -37,4 +41,4 @@ The app uses web components from the [`js-uprtcl`](https://github.com/uprtcl/js-
 
 `<evees-info-page>` from `./modules/evees` (@uprtcl/evees npm package)
 
-To work on those, checkout the `develop` branch of `js-uprtcl` and create an npm link from this repo @uprtcl dependencies to their respective folders in js-uprtcl.
+To work on those, checkout the `develop` branch of `js-uprtcl` and create an npm link from this repo @uprtcl dependencies to their corresponding folders in js-uprtcl.
