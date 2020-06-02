@@ -13,8 +13,13 @@ export function setupRouter(outlet: HTMLElement) {
       component: 'app-home',
     },
     {
-      path: '/doc/:ref',
-      component: 'app-doc',
+      path: '/space/:rootPerspective',
+      children: [
+        { path: '/official', component: 'app-doc' },
+        { path: '/official/:pageId', component: 'app-doc' },
+        { path: '/:perspectiveId', component: 'app-doc' },
+        { path: '/:perspectiveId/:pageId', component: 'app-doc' },
+      ],
     },
   ]);
 

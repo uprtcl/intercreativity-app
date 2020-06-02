@@ -1,7 +1,10 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
-module.exports = {
+const smp = new SpeedMeasurePlugin();
+
+module.exports = smp.wrap({
   output: {
     filename: 'main.[hash].bundle.js',
     path: path.resolve(__dirname, 'dist-pages'),
@@ -19,9 +22,7 @@ module.exports = {
       '@authentic/mwc-notched-outline': path.resolve(
         './node_modules/@authentic/mwc-notched-outline'
       ),
-      '@authentic/mwc-card': path.resolve(
-        './node_modules/@authentic/mwc-card'
-      ),
+      '@authentic/mwc-card': path.resolve('./node_modules/@authentic/mwc-card'),
       '@authentic/mwc-tooltip': path.resolve(
         './node_modules/@authentic/mwc-tooltip'
       ),
@@ -103,16 +104,19 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
+        exclude: /(node_modules)/,
         use: {
           loader: 'babel-loader',
           options: {
             presets: [['@babel/preset-env', { targets: { ie: '11' } }]],
             plugins: ['@babel/plugin-syntax-dynamic-import'],
+            cacheDirectory: true,
           },
         },
       },
       {
         test: /\.ts$/,
+        exclude: /(node_modules)/,
         use: {
           loader: 'ts-loader',
         },
@@ -125,4 +129,4 @@ module.exports = {
       minify: true,
     }),
   ],
-};
+});

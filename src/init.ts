@@ -20,6 +20,8 @@ export const EveesEthereumBinding = 'evees-ethereum';
 
 export const initUprtcl = async () => {
   const c1host = 'https://api.intercreativity.io/uprtcl/1';
+  //const c1host = 'http://localhost:3000/uprtcl/1';
+  // Suggestion: to create an .env file in order to handle ports and hosts
   const ethHost = '';
 
   const ipfsConfig = {

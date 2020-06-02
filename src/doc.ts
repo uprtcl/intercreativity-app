@@ -8,12 +8,20 @@ import { Router } from '@vaadin/router';
 export class Doc extends moduleConnect(LitElement) {
   @property({ attribute: false })
   docId!: string;
-
+  //
   @property({ attribute: false })
   defaultAuthority!: string;
 
+  @property({ attribute: false })
+  perspectiveId: string;
+
+  @property({ attribute: false })
+  pageId: string;
+
   async firstUpdated() {
-    this.docId = window.location.pathname.split('/')[2];
+    const pathElements = window.location.pathname.split('/');
+
+    this.docId = pathElements[2];
 
     const eveesHttpProvider = this.requestAll(
       EveesModule.bindings.EveesRemote
@@ -29,11 +37,27 @@ export class Doc extends moduleConnect(LitElement) {
     Router.go(`/home`);
   }
 
+  goToPerspective(e) {
+    const { detail: { rootPerspective, perspective } } = e;    
+    Router.go(`/space/${rootPerspective}/${(!perspective) ? 'official' : perspective}`);
+  }
+
+  goToPage(e) {
+    const { detail: { official, pageId, perspective, rootPerspective } } = e;    
+    Router.go(`/space/${rootPerspective}/${(official) ? 'official' : perspective}/${pageId}`);
+  }
+
   render() {
     if (this.docId === undefined) return '';
-    return html`
+
+    // If property `external-routing` is removed, the component will nagivate internarlly
+
+    return html`    
       <wiki-drawer
-        @back=${() => this.goHome()}
+        @back=${() => this.goHome()}  
+        @select-perspective=${(e) => this.goToPerspective(e)}   
+        @select-page=${(e) => this.goToPage(e)}           
+        external-routing=${true}
         ref=${this.docId}
         default-authority=${this.defaultAuthority}
         .editableAuthorities=${[this.defaultAuthority]}
