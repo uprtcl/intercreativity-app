@@ -2,7 +2,9 @@ import CID from 'cids';
 
 const newPerspStr = '(string,bytes32,bytes32,address)';
 const initPerspStr = `(${newPerspStr},string)`;
+
 export const CREATE_AND_SET_HOME = `createAndSetHome(${initPerspStr},address)`;
+export const SET_HOME = `setHomePerspectivePublic(string)`;
 
 const constants: [string, number][] = [
   ['base8', 37],

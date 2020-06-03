@@ -37,7 +37,7 @@ import {
   NewPerspectiveData,
   Perspective,
 } from '@uprtcl/evees/dist/types/types';
-import { getHomePerspective, CREATE_AND_SET_HOME } from './support';
+import { getHomePerspective, CREATE_AND_SET_HOME, SET_HOME } from './support';
 
 export class Home extends moduleConnect(LitElement) {
   @property({ attribute: false })
@@ -193,6 +193,11 @@ export class Home extends moduleConnect(LitElement) {
     this.go(perspectiveId);
   }
 
+  async removeSpace() {
+    await this.uprtclHomePerspectives.send(SET_HOME, ['']);
+    this.firstUpdated();
+  }
+
   go(perspectiveId: string) {
     Router.go(`/doc/${perspectiveId}`);
   }
@@ -236,6 +241,11 @@ export class Home extends moduleConnect(LitElement) {
               : html`
                   <mwc-button @click=${() => this.go(this.home)} raised>
                     go to your space
+                  </mwc-button>
+                  <br />
+                  <br />
+                  <mwc-button @click=${() => this.removeSpace()}>
+                    remove your space
                   </mwc-button>
                 `}
           </div>`
