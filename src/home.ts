@@ -13,7 +13,6 @@ import {
 import { ApolloClientModule } from '@uprtcl/graphql';
 
 import '@material/mwc-button';
-import { TextFieldBase } from '@material/mwc-textfield/mwc-textfield-base';
 import '@authentic/mwc-circular-progress';
 
 import { Router } from '@vaadin/router';
@@ -48,6 +47,9 @@ export class Home extends moduleConnect(LitElement) {
 
   @property({ attribute: false })
   creatingNewDocument: boolean = false;
+
+  @property({ attribute: false })
+  removingSpace: boolean = false;
 
   @property({ attribute: false })
   switchNetwork: boolean = false;
@@ -194,7 +196,9 @@ export class Home extends moduleConnect(LitElement) {
   }
 
   async removeSpace() {
+    this.removingSpace = true;
     await this.uprtclHomePerspectives.send(SET_HOME, ['']);
+    this.removingSpace = false;
     this.firstUpdated();
   }
 
@@ -206,7 +210,9 @@ export class Home extends moduleConnect(LitElement) {
     if (this.spaces === undefined) return '';
 
     const addresses = Object.keys(this.spaces).filter(
-      (address) => address !== this.connection.getCurrentAccount()
+      (address) =>
+        address !== this.connection.getCurrentAccount() &&
+        this.spaces[address].perspectiveId !== ''
     );
 
     return html`
@@ -244,9 +250,13 @@ export class Home extends moduleConnect(LitElement) {
                   </mwc-button>
                   <br />
                   <br />
-                  <mwc-button @click=${() => this.removeSpace()}>
-                    remove your space
-                  </mwc-button>
+                  <evees-loading-button
+                    label="remove your space"
+                    icon="clear"
+                    @click=${() => this.removeSpace()}
+                    loading=${this.removingSpace}
+                  >
+                  </evees-loading-button>
                 `}
           </div>`
         : html`<evees-string-form
@@ -261,8 +271,6 @@ export class Home extends moduleConnect(LitElement) {
       <div class="spaces-container">
         ${this.renderSpaces()}
       </div>
-
-      <mwc-snackbar id="snack-bar" labelText="creating space"></mwc-snackbar>
     `;
   }
 
@@ -271,9 +279,10 @@ export class Home extends moduleConnect(LitElement) {
       flex-grow: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       text-align: center;
-      padding: 0px 10px;
+      height: 80vh;
+      padding: 10vw 10px;
     }
 
     evees-string-form {
@@ -293,6 +302,7 @@ export class Home extends moduleConnect(LitElement) {
     }
 
     .spaces-container {
+      overflow: auto;
       margin-bottom: 36px;
       max-width: 400px;
       margin: 0 auto;
