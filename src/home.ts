@@ -54,8 +54,8 @@ export class Home extends moduleConnect(LitElement) {
   @property({ attribute: false })
   switchNetwork: boolean = false;
 
-  @query('#snack-bar')
-  snackBar!: any;
+  @query('#help-popper')
+  popper!: any;
 
   @property({ attribute: false })
   home: string | undefined = undefined;
@@ -271,6 +271,18 @@ export class Home extends moduleConnect(LitElement) {
       <div class="spaces-container">
         ${this.renderSpaces()}
       </div>
+      <div class="top-right">
+        <evees-popper id="help-popper" icon="help_outline">
+          <div class="help-content">
+            <documents-editor
+              ref="zb2rhgWKqjszNprmTEM769G1BgbKisYiiqeP9gnwhWKdVMQeW"
+            ></documents-editor>
+          </div>
+          <mwc-button @click=${() => (this.popper.showDropdown = false)}>
+            close
+          </mwc-button>
+        </evees-popper>
+      </div>
     `;
   }
 
@@ -309,6 +321,25 @@ export class Home extends moduleConnect(LitElement) {
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
       border-radius: 4px;
       background-color: rgb(255, 255, 255, 0.6);
+    }
+
+    .top-right {
+      position: fixed;
+      top: 6px;
+      right: 6px;
+    }
+
+    .help-content {
+      height: 80vh;
+      overflow-y: auto;
+    }
+
+    .top-right evees-popper {
+      --box-width: 80vw;
+    }
+
+    .top-right evees-popper mwc-button {
+      width: 100%;
     }
   `;
 }

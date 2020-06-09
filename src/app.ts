@@ -33,6 +33,7 @@ export class App extends LitElement {
           height: 100%;
           display: flex;
           flex-direction: column;
+          overflow: auto;
         }
       `,
     ];
