@@ -236,29 +236,30 @@ export class Home extends moduleConnect(LitElement) {
 
     return html`
       ${!this.showNewSpaceForm
-        ? html`<div class="button-container">
-            ${this.home === undefined || this.home === ''
-              ? html` <mwc-button
-                  @click=${() => (this.showNewSpaceForm = true)}
-                  raised
-                >
-                  create your space
-                </mwc-button>`
-              : html`
-                  <mwc-button @click=${() => this.go(this.home)} raised>
-                    go to your space
-                  </mwc-button>
-                  <br />
-                  <br />
-                  <evees-loading-button
-                    label="remove your space"
-                    icon="clear"
-                    @click=${() => this.removeSpace()}
-                    loading=${this.removingSpace}
+        ? html` <img class="background-image" src="/img/home-bg.svg" />
+            <div class="button-container">
+              ${this.home === undefined || this.home === ''
+                ? html` <mwc-button
+                    @click=${() => (this.showNewSpaceForm = true)}
+                    raised
                   >
-                  </evees-loading-button>
-                `}
-          </div>`
+                    create your space
+                  </mwc-button>`
+                : html`
+                    <mwc-button @click=${() => this.go(this.home)} raised>
+                      go to your space
+                    </mwc-button>
+                    <br />
+                    <br />
+                    <evees-loading-button
+                      label="remove your space"
+                      icon="clear"
+                      @click=${() => this.removeSpace()}
+                      loading=${this.removingSpace}
+                    >
+                    </evees-loading-button>
+                  `}
+            </div>`
         : html`<evees-string-form
             value=""
             label="title (optional)"
@@ -320,7 +321,18 @@ export class Home extends moduleConnect(LitElement) {
       margin: 0 auto;
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
       border-radius: 4px;
-      background-color: rgb(255, 255, 255, 0.6);
+      background-color: rgb(255, 255, 255, 0.7);
+      z-index: 2;
+    }
+
+    .background-image {
+      position: fixed;
+      bottom: -71px;
+      right: -67px;
+      z-index: 0;
+      width: 60vw;
+      max-width: 600px;
+      min-width: 400px;
     }
 
     .top-right {
