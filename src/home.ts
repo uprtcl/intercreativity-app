@@ -294,7 +294,7 @@ export class Home extends moduleConnect(LitElement) {
       justify-content: flex-start;
       text-align: center;
       height: 80vh;
-      padding: 10vw 10px;
+      padding: 10vh 10px;
     }
 
     evees-string-form {
