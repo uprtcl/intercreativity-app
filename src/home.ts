@@ -339,6 +339,7 @@ export class Home extends moduleConnect(LitElement) {
       position: fixed;
       top: 6px;
       right: 6px;
+      z-index: 3;
     }
 
     .help-content {
